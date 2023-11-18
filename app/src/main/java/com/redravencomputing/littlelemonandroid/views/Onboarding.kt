@@ -1,4 +1,4 @@
-package com.redravencomputing.littlelemonandroid.Views
+package com.redravencomputing.littlelemonandroid.views
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
