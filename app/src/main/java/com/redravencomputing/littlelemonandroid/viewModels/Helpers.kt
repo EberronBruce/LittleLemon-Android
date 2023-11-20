@@ -44,3 +44,14 @@ fun getUserData(context: Context): Triple<String?, String?, String?> {
 
 	return Triple(firstName, lastName, email)
 }
+
+/**
+ * Checks for valid email.
+ *
+ * @param email The email string being checked.
+ * @return A Boolean if the email is valid or not.
+ */
+fun isValidEmail(email: String) : Boolean {
+	val emailRegex = Regex("^\\S+@\\S+\\.\\S+\$")
+	return emailRegex.matches(email)
+}
