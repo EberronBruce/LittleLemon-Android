@@ -18,10 +18,10 @@ fun MyNavigation(navController: NavHostController) {
 			OnboardingScreen(navController)
 		}
 		composable(Home.route) {
-			HomeScreen()
+			HomeScreen(navController)
 		}
 		composable(Profile.route) {
-			ProfileScreen()
+			ProfileScreen(navController)
 		}
 	}
 }
