@@ -202,17 +202,16 @@ fun OnboardingForm(navController: NavHostController) {
 				.padding(bottom = 10.dp),
 			colors = ButtonDefaults.buttonColors(containerColor = LittleLemonYellow),
 			onClick = {
-				navController.navigate(Home.route)
-//				firstNameError = firstName.isBlank()
-//				lastNameError = lastName.isBlank()
-//				emailError = email.isBlank() || !isValidEmail(email)
-//				//Check Fields and let user know if they are not filled out.
-//				if (!firstNameError && !lastNameError && email.isNotBlank()) {
-//					handleRegistration(context, navController, firstName, lastName, email)
-//
-//				} else {
-//					Toast.makeText(context, "You are missing a field. Please fill out all the information.", Toast.LENGTH_SHORT).show()
-//				}
+				firstNameError = firstName.isBlank()
+				lastNameError = lastName.isBlank()
+				emailError = email.isBlank() || !isValidEmail(email)
+				//Check Fields and let user know if they are not filled out.
+				if (!firstNameError && !lastNameError && email.isNotBlank()) {
+					handleRegistration(context, navController, firstName, lastName, email)
+
+				} else {
+					Toast.makeText(context, "You are missing a field. Please fill out all the information.", Toast.LENGTH_SHORT).show()
+				}
 			}
 		) {
 			Text(
