@@ -33,7 +33,7 @@ fun ProfileScreen(navController: NavHostController) {
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
 	) {
-		Header()
+		Header(profile = true, navController = navController)
 		ScreenTitle(title = "Profile")
 		ProfileInfo(navController)
 	}
