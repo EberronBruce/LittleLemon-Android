@@ -26,6 +26,9 @@ interface MenuItemDao {
 	@Query("SELECT * FROM MenuItemRoom")
 	fun getAll(): LiveData<List<MenuItemRoom>>
 
+	@Query("SELECT category FROM MenuItemRoom")
+	fun getCategories(): LiveData<List<String>>
+
 	@Insert
 	fun insertAll(vararg menuItems: MenuItemRoom)
 
