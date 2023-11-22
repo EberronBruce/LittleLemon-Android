@@ -65,6 +65,7 @@ dependencies {
 	implementation("io.ktor:ktor-client-android:2.3.6")
 	implementation("io.ktor:ktor-client-content-negotiation:2.3.6")
 	implementation("io.ktor:ktor-serialization-kotlinx-json:2.3.6")
+	implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.5.1")
 	implementation("androidx.room:room-runtime:2.6.0")
 	ksp("androidx.room:room-compiler:2.6.0")
 	testImplementation("junit:junit:4.13.2")
