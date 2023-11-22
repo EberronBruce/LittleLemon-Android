@@ -49,6 +49,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.redravencomputing.littlelemonandroid.R
 import com.redravencomputing.littlelemonandroid.model.MenuDatabase
 import com.redravencomputing.littlelemonandroid.model.MenuItemRoom
@@ -200,7 +203,7 @@ fun OrderCategory(menuCategories : List<String>) {
 					.size(40.dp)
 				)
 		}
-		
+
 		LazyRow(
 			modifier = Modifier
 				.fillMaxWidth()
@@ -250,6 +253,7 @@ fun MenuList(menuItems : List<MenuItemRoom>) {
 
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
 fun MenuCell(menuItem : MenuItemRoom) {
 	Row (
@@ -290,14 +294,14 @@ fun MenuCell(menuItem : MenuItemRoom) {
 
 		Spacer(modifier = Modifier.weight(1f))
 
-		Image(
-			painter = painterResource(id = R.drawable.greek_salad),
-			contentDescription = "Hero Image",
+		GlideImage(
+			model = menuItem.imageUrl,
+			contentDescription = menuItem.title,
+			loading = placeholder(R.drawable.logo_hero),
 			contentScale = ContentScale.Crop,
 			modifier = Modifier
 				.size(100.dp)
 				.padding(8.dp)
-
 		)
 	}
 
