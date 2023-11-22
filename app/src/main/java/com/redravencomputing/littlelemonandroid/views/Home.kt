@@ -209,7 +209,7 @@ fun OrderCategory(menuCategories : List<String>) {
 				.fillMaxWidth()
 				.padding(vertical = 8.dp)
 				.nestedScroll(rememberNestedScrollInteropConnection()),
-			horizontalArrangement = Arrangement.SpaceBetween
+			horizontalArrangement = Arrangement.Start
 		) {
 			items(capitalizeCategories.toTypedArray()) { category ->
 				PillButton(text = category)
