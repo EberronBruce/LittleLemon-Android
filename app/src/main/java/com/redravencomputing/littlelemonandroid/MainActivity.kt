@@ -6,6 +6,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
+import com.redravencomputing.littlelemonandroid.model.MenuDatabase
 import com.redravencomputing.littlelemonandroid.model.MenuItemNetwork
 import com.redravencomputing.littlelemonandroid.model.MenuNetworkData
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonAndroidTheme
@@ -28,6 +29,7 @@ class MainActivity : ComponentActivity() {
 			json(contentType = ContentType("text", "plain"))
 		}
 	}
+
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		setContent {
@@ -38,7 +40,19 @@ class MainActivity : ComponentActivity() {
 		}
 
 		lifecycleScope.launch(Dispatchers.IO) {
-			val menuItems = fetchMenu()
+			val database = MenuDatabase.getInstance(applicationContext).menuItemDao()
+			// Check for data in database and clear it
+			try {
+				val menuItems = fetchMenu()
+				if (!database.isEmpty()) {
+					database.deleteAll()
+				}
+				saveMenuToDatabase(menuItems)
+			} catch (e: Exception) {
+				Log.e(MAIN_ACTIVITY, e.message ?: "Error: Unable to populate database from server")
+				e.printStackTrace()
+			}
+
 		}
 	}
 
@@ -52,6 +66,11 @@ class MainActivity : ComponentActivity() {
 			Log.e(MAIN_ACTIVITY, e.localizedMessage ?: "No localized error message")
 			emptyList()
 		}
+	}
+
+	private fun saveMenuToDatabase(menuItemsNetwork : List<MenuItemNetwork>) {
+		val menuItemsRoom = menuItemsNetwork.map { it.toMenuItemRoom() }
+		MenuDatabase.getInstance(applicationContext).menuItemDao().insertAll(*menuItemsRoom.toTypedArray())
 	}
 
 }
