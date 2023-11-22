@@ -3,7 +3,6 @@ package com.redravencomputing.littlelemonandroid.views
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,8 +14,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -30,11 +29,16 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.rememberNestedScrollInteropConnection
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -45,15 +49,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.bumptech.glide.integration.compose.ExperimentalGlideComposeApi
+import com.bumptech.glide.integration.compose.GlideImage
+import com.bumptech.glide.integration.compose.placeholder
 import com.redravencomputing.littlelemonandroid.R
+import com.redravencomputing.littlelemonandroid.model.MenuDatabase
+import com.redravencomputing.littlelemonandroid.model.MenuItemRoom
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonAndroidTheme
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonDarkGrey
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonLightGrey
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonYellow
 import com.redravencomputing.littlelemonandroid.viewModels.Profile
+import java.util.Locale
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
+	val context = LocalContext.current
+	val database = MenuDatabase.getInstance(context = context).menuItemDao()
+
+	val menuItems by database.getAll().observeAsState(emptyList())
+
+	val categories by database.getCategories().observeAsState(emptyList())
+	
+
 	Column(
 		modifier = Modifier
 			.fillMaxSize()
@@ -64,8 +82,8 @@ fun HomeScreen(navController: NavHostController) {
 	) {
 		Header(home = true, navController = navController)
 		Hero()
-		OrderCategory()
-		MenuList()
+		OrderCategory(categories)
+		MenuList(menuItems)
 	}
 }
 
@@ -153,8 +171,14 @@ fun Hero() {
 }
 
 @Composable
-fun OrderCategory() {
-	val menuCategories = listOf("Starters", "Mains", "Desserts", "Sides", "More")
+fun OrderCategory(menuCategories : List<String>) {
+
+	val capitalizeCategories = menuCategories.toSet().map { it ->
+		it.replaceFirstChar {
+			if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString()
+		}
+	}
+
 	Column(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -180,19 +204,14 @@ fun OrderCategory() {
 				)
 		}
 
-
-		//Change to lazy when fetching data maybe
-		Row(
+		LazyRow(
 			modifier = Modifier
 				.fillMaxWidth()
 				.padding(vertical = 8.dp)
-				.horizontalScroll(rememberScrollState()),
-			horizontalArrangement = Arrangement.SpaceBetween
+				.nestedScroll(rememberNestedScrollInteropConnection()),
+			horizontalArrangement = Arrangement.Start
 		) {
-//			items(menuCategories) { category ->
-//				PillButton(text = category)
-//			}
-			menuCategories.forEach { category ->
+			items(capitalizeCategories.toTypedArray()) { category ->
 				PillButton(text = category)
 			}
 		}
@@ -224,20 +243,19 @@ fun PillButton(text: String) {
 }
 
 @Composable
-fun MenuList() {
-	// Assuming you have 10 MenuCells
-	val menuItems = List(10) { index -> index }
+fun MenuList(menuItems : List<MenuItemRoom>) {
 
 	LazyColumn {
-		items(menuItems) { index ->
-			MenuCell()
+		items(menuItems) { menuItem ->
+			MenuCell(menuItem)
 		}
 	}
 
 }
 
+@OptIn(ExperimentalGlideComposeApi::class)
 @Composable
-fun MenuCell() {
+fun MenuCell(menuItem : MenuItemRoom) {
 	Row (
 		verticalAlignment = Alignment.CenterVertically,
 		modifier = Modifier
@@ -249,14 +267,14 @@ fun MenuCell() {
 				.fillMaxWidth(0.7f)
 		) {
 			Text(
-				text = "Greek Salad",
+				text = menuItem.title,
 				fontWeight = FontWeight.Bold,
 				fontFamily = FontFamily.SansSerif,
 				modifier = Modifier
 					.padding(vertical = 4.dp)
 			)
 			Text(
-				text = "The famous greek salad of crispy lettuce, peppers, olives and our Chicago Dressing And More",
+				text = menuItem.description,
 				maxLines = 2,
 				overflow = TextOverflow.Ellipsis,
 				fontWeight = FontWeight.Medium,
@@ -267,7 +285,7 @@ fun MenuCell() {
 				.padding(vertical = 8.dp)
 			)
 			Text(
-				text = "$12.99",
+				text = "$${String.format("%.2f", menuItem.price)}",
 				fontWeight = FontWeight.SemiBold,
 				modifier = Modifier
 					.padding(vertical = 8.dp)
@@ -276,14 +294,14 @@ fun MenuCell() {
 
 		Spacer(modifier = Modifier.weight(1f))
 
-		Image(
-			painter = painterResource(id = R.drawable.greek_salad),
-			contentDescription = "Hero Image",
+		GlideImage(
+			model = menuItem.imageUrl,
+			contentDescription = menuItem.title,
+			loading = placeholder(R.drawable.logo_hero),
 			contentScale = ContentScale.Crop,
 			modifier = Modifier
 				.size(100.dp)
 				.padding(8.dp)
-
 		)
 	}
 
@@ -324,6 +342,9 @@ fun PillPreview() {
 @Composable
 fun MenuCellPreview() {
 	LittleLemonAndroidTheme {
-		MenuCell()
+		val menuItem = MenuItemRoom(
+			1, "Greek Something", 10.99, "This is something to show here", "mains", ""
+		)
+		MenuCell(menuItem)
 	}
 }

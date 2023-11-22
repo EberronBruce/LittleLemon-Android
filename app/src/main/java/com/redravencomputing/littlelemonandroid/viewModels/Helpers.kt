@@ -8,6 +8,9 @@ const val KEY_FIRST_NAME = "firstName"
 const val KEY_LAST_NAME = "lastName"
 const val KEY_EMAIL = "email"
 
+const val MENU_DATA_URL = "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json" +
+		" "
+
 /**
  * Stores user data to SharedPreferences.
  *
