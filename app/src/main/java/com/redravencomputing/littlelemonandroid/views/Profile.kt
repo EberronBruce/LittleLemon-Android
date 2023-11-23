@@ -24,6 +24,7 @@ import androidx.navigation.compose.rememberNavController
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonAndroidTheme
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonDarkGrey
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonYellow
+import com.redravencomputing.littlelemonandroid.viewModels.clearUserData
 import com.redravencomputing.littlelemonandroid.viewModels.getUserData
 
 @Composable
@@ -125,6 +126,7 @@ fun ProfileInfo(navController: NavHostController) {
 			colors = ButtonDefaults.buttonColors(containerColor = LittleLemonYellow),
 			onClick = {
 				//Navigate back to Onboarding
+				clearUserData(context = context)
 				navController.popBackStack(navController.graph.startDestinationId, false)
 			}
 		) {

@@ -7,9 +7,9 @@ const val KEY_USER_DATA = "UserData"
 const val KEY_FIRST_NAME = "firstName"
 const val KEY_LAST_NAME = "lastName"
 const val KEY_EMAIL = "email"
+const val KEY_LOGIN = "login"
 
-const val MENU_DATA_URL = "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json" +
-		" "
+const val MENU_DATA_URL = "https://raw.githubusercontent.com/Meta-Mobile-Developer-PC/Working-With-Data-API/main/menu.json"
 
 /**
  * Stores user data to SharedPreferences.
@@ -27,6 +27,7 @@ fun saveUserData(context: Context, firstName: String, lastName: String, email: S
 	editor.putString(KEY_FIRST_NAME, firstName)
 	editor.putString(KEY_LAST_NAME, lastName)
 	editor.putString(KEY_EMAIL, email)
+	editor.putBoolean(KEY_LOGIN, true)
 
 	editor.apply()
 }
@@ -46,6 +47,32 @@ fun getUserData(context: Context): Triple<String?, String?, String?> {
 	val email = sharedPreferences.getString(KEY_EMAIL, null)
 
 	return Triple(firstName, lastName, email)
+}
+/**
+ * Clears user data from SharedPreferences.
+ *
+ * @param context The application context.
+ * @return A [Triple] containing the user's first name, last name, and email.
+ *         If any of the data is not available, the corresponding value in the [Triple] is `null`.
+ */
+fun clearUserData(context: Context) {
+	val sharedPreferences : SharedPreferences = context.getSharedPreferences(KEY_USER_DATA, Context.MODE_PRIVATE)
+	val editor = sharedPreferences.edit()
+
+	editor.putString(KEY_FIRST_NAME, null)
+	editor.putString(KEY_LAST_NAME, null)
+	editor.putString(KEY_EMAIL, null)
+	editor.putBoolean(KEY_LOGIN, false)
+
+	editor.apply()
+}
+
+fun isUserLoggedIn(context: Context) : Boolean {
+	val sharedPreferences : SharedPreferences = context.getSharedPreferences(KEY_USER_DATA, Context.MODE_PRIVATE)
+
+	val login = sharedPreferences.getBoolean(KEY_LOGIN, false)
+
+	return login
 }
 
 /**
