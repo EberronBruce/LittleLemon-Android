@@ -31,6 +31,9 @@ import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -59,7 +62,6 @@ import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonAndroidTheme
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonDarkGrey
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonLightGrey
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonYellow
-import com.redravencomputing.littlelemonandroid.viewModels.Profile
 import java.util.Locale
 
 @Composable
@@ -68,29 +70,39 @@ fun HomeScreen(navController: NavHostController) {
 	val database = MenuDatabase.getInstance(context = context).menuItemDao()
 
 	val menuItems by database.getAll().observeAsState(emptyList())
-
 	val categories by database.getCategories().observeAsState(emptyList())
-	
+
+	var searchPhrase by remember { mutableStateOf("") }
+	var selectedCategory by remember { mutableStateOf("") }
+
+	val filterMenuItems = menuItems
+		.filter { it.title.contains(searchPhrase, ignoreCase = true) }
+		.filter { selectedCategory == "" || it.category == selectedCategory}
+
 
 	Column(
 		modifier = Modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
-			.clickable {
-				navController.navigate(Profile.route)
-			}
 	) {
 		Header(home = true, navController = navController)
-		Hero()
-		OrderCategory(categories)
-		MenuList(menuItems)
+		Hero(onSearchPhraseChange = { newSearchPhrase -> searchPhrase = newSearchPhrase })
+		OrderCategory(
+			menuCategories = categories,
+			selectedCategory = selectedCategory,
+			onCategorySelected = { category ->
+				selectedCategory = if (selectedCategory == category) "" else category
+			})
+		MenuList(filterMenuItems)
 	}
 }
 
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun Hero() {
+fun Hero(onSearchPhraseChange: (String) -> Unit) {
+	var searchPhrase by remember { mutableStateOf("") }
+
 	Column(
 		modifier = Modifier
 			.fillMaxWidth()
@@ -145,14 +157,17 @@ fun Hero() {
 		}
 
 		TextField(
-			value = "",
-			onValueChange = {},
+			value = searchPhrase,
+			onValueChange = {
+				searchPhrase = it
+				onSearchPhraseChange(it)
+			},
 			leadingIcon = {
 				Icon(
 					imageVector = Icons.Default.Search,
 					contentDescription = "Search Icon")
 			},
-			placeholder = { Text("Search...")},
+			placeholder = { Text("Enter Search Phrase")},
 			keyboardOptions = KeyboardOptions(
 				imeAction = ImeAction.Search
 			),
@@ -171,7 +186,11 @@ fun Hero() {
 }
 
 @Composable
-fun OrderCategory(menuCategories : List<String>) {
+fun OrderCategory(
+	menuCategories : List<String>,
+	selectedCategory: String?,
+	onCategorySelected: (String) -> Unit
+) {
 
 	val capitalizeCategories = menuCategories.toSet().map { it ->
 		it.replaceFirstChar {
@@ -212,7 +231,11 @@ fun OrderCategory(menuCategories : List<String>) {
 			horizontalArrangement = Arrangement.Start
 		) {
 			items(capitalizeCategories.toTypedArray()) { category ->
-				PillButton(text = category)
+				PillButton(
+					text = category,
+					isSelected = category == selectedCategory,
+					onCategorySelected = { onCategorySelected(category.lowercase()) }
+				)
 			}
 		}
 
@@ -224,20 +247,24 @@ fun OrderCategory(menuCategories : List<String>) {
 }
 
 @Composable
-fun PillButton(text: String) {
+fun PillButton(
+	text: String,
+	isSelected: Boolean,
+	onCategorySelected: () -> Unit
+) {
 	Box(
 		modifier = Modifier
 			.padding(horizontal = 10.dp)
 			.clip(CircleShape)
-			.background(Color.LightGray)
-			.clickable { /* Handle button click */ }
+			.background(if (isSelected) LittleLemonYellow else Color.LightGray)
+			.clickable { onCategorySelected() }
 			.padding(horizontal = 16.dp, vertical = 8.dp)
 	) {
 		Text(
 			text = text,
 			fontFamily = FontFamily.SansSerif,
 			fontWeight = FontWeight.Bold,
-			color = LittleLemonDarkGrey
+			color = if (isSelected) Color.White else LittleLemonDarkGrey
 		)
 	}
 }
@@ -326,7 +353,7 @@ fun HomePreview() {
 @Composable
 fun HeroPreview() {
 	LittleLemonAndroidTheme {
-		Hero()
+		Hero(onSearchPhraseChange = {})
 	}
 }
 
@@ -334,7 +361,7 @@ fun HeroPreview() {
 @Composable
 fun PillPreview() {
 	LittleLemonAndroidTheme {
-		PillButton(text = "Starters")
+		PillButton(text = "Starters", isSelected = true, onCategorySelected = {})
 	}
 }
 

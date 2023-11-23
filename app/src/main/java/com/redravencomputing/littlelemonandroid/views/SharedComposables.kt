@@ -55,7 +55,7 @@ fun Header(navController: NavHostController? = null, home: Boolean = false, prof
 			) {
 				Image(
 					painter = backImage,
-					contentDescription = "Profile Image",
+					contentDescription = "Back Button",
 					colorFilter = ColorFilter.tint(LittleLemonYellow),
 					modifier = Modifier
 						.size(40.dp) // Adjust size as needed
@@ -82,7 +82,8 @@ fun Header(navController: NavHostController? = null, home: Boolean = false, prof
 			Box(
 				modifier = Modifier
 					.size(50.dp) // Adjust size as needed
-					.background(shape = CircleShape, color = LittleLemonGreen),
+					.background(shape = CircleShape, color = LittleLemonGreen)
+					.clickable { navController?.navigate(Profile.route) },
 				contentAlignment = Alignment.Center
 			) {
 				Image(
@@ -92,9 +93,6 @@ fun Header(navController: NavHostController? = null, home: Boolean = false, prof
 					modifier = Modifier
 						.size(50.dp) // Adjust size as needed
 						.padding(8.dp)
-						.clickable {
-							navController?.navigate(Profile.route)
-						}
 				)
 			}
 		}
