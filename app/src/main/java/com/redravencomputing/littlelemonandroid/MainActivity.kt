@@ -4,13 +4,16 @@ import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.redravencomputing.littlelemonandroid.model.MenuDatabase
 import com.redravencomputing.littlelemonandroid.model.MenuItemNetwork
 import com.redravencomputing.littlelemonandroid.model.MenuNetworkData
 import com.redravencomputing.littlelemonandroid.ui.theme.LittleLemonAndroidTheme
+import com.redravencomputing.littlelemonandroid.viewModels.Home
 import com.redravencomputing.littlelemonandroid.viewModels.MENU_DATA_URL
+import com.redravencomputing.littlelemonandroid.viewModels.isUserLoggedIn
 import com.redravencomputing.littlelemonandroid.views.navigation.MyNavigation
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -36,6 +39,9 @@ class MainActivity : ComponentActivity() {
 			LittleLemonAndroidTheme {
 				val navController = rememberNavController()
 				MyNavigation(navController = navController)
+				val context = LocalContext.current
+				val isLoggedIn = isUserLoggedIn(context)
+				if (isLoggedIn) {navController.navigate(Home.route)}
 			}
 		}
 
