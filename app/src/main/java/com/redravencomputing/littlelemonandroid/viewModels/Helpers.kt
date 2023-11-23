@@ -48,6 +48,17 @@ fun getUserData(context: Context): Triple<String?, String?, String?> {
 	return Triple(firstName, lastName, email)
 }
 
+fun clearUserData(context: Context) {
+	val sharedPreferences : SharedPreferences = context.getSharedPreferences(KEY_USER_DATA, Context.MODE_PRIVATE)
+	val editor = sharedPreferences.edit()
+
+	editor.putString(KEY_FIRST_NAME, null)
+	editor.putString(KEY_LAST_NAME, null)
+	editor.putString(KEY_EMAIL, null)
+
+	editor.apply()
+}
+
 /**
  * Checks for valid email.
  *
